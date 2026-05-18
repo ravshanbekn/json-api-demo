@@ -1,4 +1,4 @@
-package kz.app.jsonapidemo.mapper;
+package kz.app.jsonapidemo.serializer;
 
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
@@ -6,23 +6,22 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
-public class AuthorMapper {
+public class AuthorSerializer implements ResourceSerializer<Author> {
 
-    private static final String type = "authors";
+    private static final String TYPE = "authors";
 
-    public List<ResourceObject> toResourceObjects(List<Author> authors) {
-        return authors.stream()
-                .map(this::toResourceObject)
-                .toList();
+    @Override
+    public String getType() {
+        return TYPE;
     }
 
-    public ResourceObject toResourceObject(Author author) {
+    @Override
+    public ResourceObject serialize(Author author) {
         ResourceObject resourceObject = new ResourceObject();
-        resourceObject.setType(type);
+        resourceObject.setType(TYPE);
         resourceObject.setId(String.valueOf(author.getId()));
 
         Map<String, Object> attributes = new HashMap<>();

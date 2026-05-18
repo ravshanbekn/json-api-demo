@@ -5,21 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(NON_NULL)
-public class ErrorObject {
+public class ErrorSource {
 
-    private String id;
-    private String code;
-    private ErrorSource source;
-    private Map<String, Object> meta;
-    private String status;
-    private String title;
-    private String detail;
+    private String pointer;
+    private String parameter;
+    private String header;
 }

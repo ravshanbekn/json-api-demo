@@ -1,6 +1,6 @@
 package kz.app.jsonapidemo.controller;
 
-import kz.app.jsonapidemo.mapper.AuthorMapper;
+import kz.app.jsonapidemo.serializer.AuthorSerializer;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
@@ -16,25 +16,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorController {
 
-    private final AuthorMapper authorMapper;
+    private final AuthorSerializer authorSerializer;
     private final AuthorService authorService;
 
     @GetMapping
     public JsonApiDocument<?> getAuthor() {
         List<Author> authors = authorService.findAll();
-        return new JsonApiDocument<>(authorMapper.toResourceObjects(authors));
+        return new JsonApiDocument<>(authorSerializer.serializeAll(authors));
     }
 
     @GetMapping("/{id}")
     public JsonApiDocument<?> getAuthorById(@PathVariable Long id) {
         Author author = authorService.findById(id);
-        return new JsonApiDocument<>(authorMapper.toResourceObject(author));
+        return new JsonApiDocument<>(authorSerializer.serialize(author));
     }
 
     @PostMapping
     public JsonApiDocument<?> createAuthor(@RequestBody JsonApiDocument<ResourceObject> authorRequest) {
-        Author author = authorService.create(authorRequest.getData());
-        return new JsonApiDocument<>(authorMapper.toResourceObject(author));
+        Author requestAuthor = authorSerializer.toEntity(authorRequest.getData());
+        Author savedAuthor = authorService.create(requestAuthor);
+        return new JsonApiDocument<>(authorSerializer.serialize(savedAuthor));
     }
 
     @PatchMapping("/{id}")
