@@ -1,5 +1,6 @@
 package kz.app.jsonapidemo.service;
 
+import kz.app.jsonapidemo.exception.ObjectNotFoundException;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class AuthorService {
 
     public Author findById(Long id) {
         return authorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Author not found with id: " + id));
+                .orElseThrow(() -> new ObjectNotFoundException("Author not found with id: " + id));
     }
 
     public Author create(Author author) {

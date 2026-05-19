@@ -17,4 +17,8 @@ public class JsonApiDocument<T> {
     public JsonApiDocument(T data) {
         this.data = data;
     }
+
+    public JsonApiDocument(List<ErrorObject> errors) {
+        this.errors = errors;
+    }
 }
