@@ -1,14 +1,13 @@
 package kz.app.jsonapidemo.controller;
 
 import kz.app.jsonapidemo.model.data.AuthorData;
-import kz.app.jsonapidemo.serializer.AuthorSerializer;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
+import kz.app.jsonapidemo.serializer.AuthorSerializer;
 import kz.app.jsonapidemo.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
