@@ -53,4 +53,56 @@ public class BookController {
     public void deleteBook(@PathVariable Long id) {
         bookService.delete(id);
     }
+
+    // todo
+    // --- Related endpoints ---
+
+    @GetMapping("/{id}/author")
+    public JsonApiDocument<?> getBookAuthor(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @GetMapping("/{id}/genres")
+    public JsonApiDocument<?> getBookGenres(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    // --- Relationship endpoints ---
+
+    @GetMapping("/{id}/relationships/author")
+    public JsonApiDocument<?> getAuthorRelationship(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @PatchMapping("/{id}/relationships/author")
+    public JsonApiDocument<?> updateAuthorRelationship(@PathVariable Long id,
+                                                       @RequestBody JsonApiDocument<ResourceObject> request) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @GetMapping("/{id}/relationships/genres")
+    public JsonApiDocument<?> getGenresRelationship(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @PostMapping("/{id}/relationships/genres")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addGenresRelationship(@PathVariable Long id,
+                                      @RequestBody JsonApiDocument<ResourceObject> request) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @PatchMapping("/{id}/relationships/genres")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void replaceGenresRelationship(@PathVariable Long id,
+                                          @RequestBody JsonApiDocument<ResourceObject> request) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @DeleteMapping("/{id}/relationships/genres")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeGenresRelationship(@PathVariable Long id,
+                                         @RequestBody JsonApiDocument<ResourceObject> request) {
+        throw new UnsupportedOperationException("TODO");
+    }
 }

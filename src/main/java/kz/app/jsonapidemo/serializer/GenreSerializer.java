@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 public class GenreSerializer implements ResourceSerializer<Genre> {
 
-    private static final String TYPE = "genres";
+    public static final String TYPE = "genres";
 
     @Override
     public String getType() {

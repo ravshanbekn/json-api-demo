@@ -53,4 +53,19 @@ public class GenreController {
     public void deleteGenre(@PathVariable Long id) {
         genreService.delete(id);
     }
+
+    // todo
+    // --- Related endpoints ---
+
+    @GetMapping("/{id}/books")
+    public JsonApiDocument<?> getGenreBooks(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    // --- Relationship endpoints ---
+
+    @GetMapping("/{id}/relationships/books")
+    public JsonApiDocument<?> getBooksRelationship(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 @Component
 public class AuthorSerializer implements ResourceSerializer<Author> {
 
-    private static final String TYPE = "authors";
+    public static final String TYPE = "authors";
 
     @Override
     public String getType() {

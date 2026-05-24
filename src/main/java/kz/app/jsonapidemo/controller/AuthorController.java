@@ -53,4 +53,19 @@ public class AuthorController {
     public void deleteAuthor(@PathVariable Long id) {
         authorService.delete(id);
     }
+
+    // todo
+    // --- Related endpoints ---
+
+    @GetMapping("/{id}/books")
+    public JsonApiDocument<?> getAuthorBooks(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    // --- Relationship endpoints ---
+
+    @GetMapping("/{id}/relationships/books")
+    public JsonApiDocument<?> getBooksRelationship(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO");
+    }
 }
