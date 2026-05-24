@@ -3,8 +3,10 @@ package kz.app.jsonapidemo.controller;
 import kz.app.jsonapidemo.model.data.AuthorData;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
+import kz.app.jsonapidemo.model.jsonapi.ResourceIdentifier;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
 import kz.app.jsonapidemo.serializer.AuthorSerializer;
+import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ public class AuthorController {
 
     private final AuthorSerializer authorSerializer;
     private final AuthorService authorService;
+    private final BookSerializer bookSerializer;
 
     @GetMapping
     public JsonApiDocument<?> getAuthors() {
@@ -54,18 +57,18 @@ public class AuthorController {
         authorService.delete(id);
     }
 
-    // todo
-    // --- Related endpoints ---
-
     @GetMapping("/{id}/books")
     public JsonApiDocument<?> getAuthorBooks(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        Author author = authorService.findById(id);
+        return new JsonApiDocument<>(bookSerializer.serializeAll(author.getBooks()));
     }
-
-    // --- Relationship endpoints ---
 
     @GetMapping("/{id}/relationships/books")
     public JsonApiDocument<?> getBooksRelationship(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        Author author = authorService.findById(id);
+        List<ResourceIdentifier> identifiers = author.getBooks().stream()
+                .map(b -> new ResourceIdentifier(String.valueOf(b.getId()), BookSerializer.TYPE))
+                .toList();
+        return new JsonApiDocument<>(identifiers);
     }
 }

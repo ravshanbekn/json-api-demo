@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 public class BookSerializer implements ResourceSerializer<Book> {
 
-    private static final String TYPE = "books";
+    public static final String TYPE = "books";
     private static final String AUTHOR_REL = "author";
     private static final String GENRE_REL = "genres";
 

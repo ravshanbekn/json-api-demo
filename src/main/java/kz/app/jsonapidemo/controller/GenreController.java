@@ -1,10 +1,14 @@
 package kz.app.jsonapidemo.controller;
 
 import kz.app.jsonapidemo.model.data.GenreData;
+import kz.app.jsonapidemo.model.entity.Book;
 import kz.app.jsonapidemo.model.entity.Genre;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
+import kz.app.jsonapidemo.model.jsonapi.ResourceIdentifier;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
+import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.GenreSerializer;
+import kz.app.jsonapidemo.service.BookService;
 import kz.app.jsonapidemo.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,8 @@ public class GenreController {
 
     private final GenreSerializer genreSerializer;
     private final GenreService genreService;
+    private final BookSerializer bookSerializer;
+    private final BookService bookService;
 
     @GetMapping
     public JsonApiDocument<?> getGenres() {
@@ -54,18 +60,19 @@ public class GenreController {
         genreService.delete(id);
     }
 
-    // todo
-    // --- Related endpoints ---
-
     @GetMapping("/{id}/books")
     public JsonApiDocument<?> getGenreBooks(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        genreService.findById(id);
+        List<Book> books = bookService.findByGenreId(id);
+        return new JsonApiDocument<>(bookSerializer.serializeAll(books));
     }
-
-    // --- Relationship endpoints ---
 
     @GetMapping("/{id}/relationships/books")
     public JsonApiDocument<?> getBooksRelationship(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        genreService.findById(id);
+        List<ResourceIdentifier> identifiers = bookService.findByGenreId(id).stream()
+                .map(b -> new ResourceIdentifier(String.valueOf(b.getId()), BookSerializer.TYPE))
+                .toList();
+        return new JsonApiDocument<>(identifiers);
     }
 }

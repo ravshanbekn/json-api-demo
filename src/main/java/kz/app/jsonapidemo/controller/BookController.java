@@ -1,10 +1,15 @@
 package kz.app.jsonapidemo.controller;
 
 import kz.app.jsonapidemo.model.data.BookData;
+import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.entity.Book;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
+import kz.app.jsonapidemo.model.jsonapi.ResourceIdentifier;
+import kz.app.jsonapidemo.model.jsonapi.ResourceIdentifierList;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
+import kz.app.jsonapidemo.serializer.AuthorSerializer;
 import kz.app.jsonapidemo.serializer.BookSerializer;
+import kz.app.jsonapidemo.serializer.GenreSerializer;
 import kz.app.jsonapidemo.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,8 @@ public class BookController {
 
     private final BookSerializer bookSerializer;
     private final BookService bookService;
+    private final AuthorSerializer authorSerializer;
+    private final GenreSerializer genreSerializer;
 
     @GetMapping
     public JsonApiDocument<?> getBooks() {
@@ -54,55 +61,65 @@ public class BookController {
         bookService.delete(id);
     }
 
-    // todo
-    // --- Related endpoints ---
-
     @GetMapping("/{id}/author")
     public JsonApiDocument<?> getBookAuthor(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        Book book = bookService.findById(id);
+        Author author = book.getAuthor();
+        if (author == null) {
+            return new JsonApiDocument<>(null);
+        }
+        return new JsonApiDocument<>(authorSerializer.serialize(author));
     }
 
     @GetMapping("/{id}/genres")
     public JsonApiDocument<?> getBookGenres(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        Book book = bookService.findByIdWithGenres(id);
+        return new JsonApiDocument<>(genreSerializer.serializeAll(book.getGenres()));
     }
-
-    // --- Relationship endpoints ---
 
     @GetMapping("/{id}/relationships/author")
     public JsonApiDocument<?> getAuthorRelationship(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        Book book = bookService.findById(id);
+        Author author = book.getAuthor();
+        if (author == null) {
+            return new JsonApiDocument<>(null);
+        }
+        return new JsonApiDocument<>(new ResourceIdentifier(String.valueOf(author.getId()), AuthorSerializer.TYPE));
     }
 
     @PatchMapping("/{id}/relationships/author")
-    public JsonApiDocument<?> updateAuthorRelationship(@PathVariable Long id,
-                                                       @RequestBody JsonApiDocument<ResourceObject> request) {
-        throw new UnsupportedOperationException("TODO");
+    public void updateAuthorRelationship(@PathVariable Long id,
+                                         @RequestBody JsonApiDocument<ResourceIdentifier> request) {
+        bookService.updateAuthor(id, request.getData());
     }
 
     @GetMapping("/{id}/relationships/genres")
     public JsonApiDocument<?> getGenresRelationship(@PathVariable Long id) {
-        throw new UnsupportedOperationException("TODO");
+        Book book = bookService.findByIdWithGenres(id);
+        List<ResourceIdentifier> identifiers = book.getGenres().stream()
+                .map(g -> new ResourceIdentifier(String.valueOf(g.getId()), GenreSerializer.TYPE))
+                .toList();
+        return new JsonApiDocument<>(identifiers);
     }
 
     @PostMapping("/{id}/relationships/genres")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addGenresRelationship(@PathVariable Long id,
-                                      @RequestBody JsonApiDocument<ResourceObject> request) {
-        throw new UnsupportedOperationException("TODO");
+                                      @RequestBody ResourceIdentifierList request) {
+        bookService.addGenres(id, request.getData());
     }
 
     @PatchMapping("/{id}/relationships/genres")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void replaceGenresRelationship(@PathVariable Long id,
-                                          @RequestBody JsonApiDocument<ResourceObject> request) {
-        throw new UnsupportedOperationException("TODO");
+                                          @RequestBody ResourceIdentifierList request) {
+        bookService.replaceGenres(id, request.getData());
     }
 
     @DeleteMapping("/{id}/relationships/genres")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeGenresRelationship(@PathVariable Long id,
-                                         @RequestBody JsonApiDocument<ResourceObject> request) {
-        throw new UnsupportedOperationException("TODO");
+                                         @RequestBody ResourceIdentifierList request) {
+        bookService.removeGenres(id, request.getData());
     }
 }
