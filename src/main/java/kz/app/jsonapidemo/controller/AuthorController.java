@@ -1,5 +1,6 @@
 package kz.app.jsonapidemo.controller;
 
+import kz.app.jsonapidemo.model.data.AuthorData;
 import kz.app.jsonapidemo.serializer.AuthorSerializer;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
@@ -7,6 +8,7 @@ import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
 import kz.app.jsonapidemo.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping
-    public JsonApiDocument<?> getAuthor() {
+    public JsonApiDocument<?> getAuthors() {
         List<Author> authors = authorService.findAll();
         return new JsonApiDocument<>(authorSerializer.serializeAll(authors));
     }
@@ -32,6 +34,7 @@ public class AuthorController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public JsonApiDocument<?> createAuthor(@RequestBody JsonApiDocument<ResourceObject> authorRequest) {
         Author requestAuthor = authorSerializer.toEntity(authorRequest.getData());
         Author savedAuthor = authorService.create(requestAuthor);
@@ -39,12 +42,16 @@ public class AuthorController {
     }
 
     @PatchMapping("/{id}")
-    public JsonApiDocument<?> updateAuthor(@PathVariable String id, @RequestBody JsonApiDocument author) {
-        return null;
+    public JsonApiDocument<?> updateAuthor(@PathVariable Long id,
+                                           @RequestBody JsonApiDocument<ResourceObject> author) {
+        AuthorData authorData = authorSerializer.toData(author.getData());
+        Author updatedAuthor = authorService.update(id, authorData);
+        return new JsonApiDocument<>(authorSerializer.serialize(updatedAuthor));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAuthor(@PathVariable String id) {
+    public void deleteAuthor(@PathVariable Long id) {
+        authorService.delete(id);
     }
 }

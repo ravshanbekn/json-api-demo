@@ -1,5 +1,6 @@
 package kz.app.jsonapidemo.serializer;
 
+import kz.app.jsonapidemo.model.data.AuthorData;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
 import org.springframework.stereotype.Component;
@@ -41,5 +42,13 @@ public class AuthorSerializer implements ResourceSerializer<Author> {
         author.setBio((String) resource.getAttributes().get("bio"));
         author.setBirthDate(LocalDate.parse((String) resource.getAttributes().get("birthDate")));
         return author;
+    }
+
+    public AuthorData toData(ResourceObject resource) {
+        AuthorData authorData = new AuthorData();
+        authorData.setFirstName((String) resource.getAttributes().get("firstName"));
+        authorData.setLastName((String) resource.getAttributes().get("lastName"));
+        authorData.setBio((String) resource.getAttributes().get("bio"));
+        return authorData;
     }
 }
