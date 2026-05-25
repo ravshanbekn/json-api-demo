@@ -5,10 +5,14 @@ import kz.app.jsonapidemo.model.data.BookData;
 import kz.app.jsonapidemo.model.entity.Author;
 import kz.app.jsonapidemo.model.entity.Book;
 import kz.app.jsonapidemo.model.entity.Genre;
+import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
 import kz.app.jsonapidemo.model.jsonapi.ResourceIdentifier;
+import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
 import kz.app.jsonapidemo.repository.AuthorRepository;
 import kz.app.jsonapidemo.repository.BookRepository;
 import kz.app.jsonapidemo.repository.GenreRepository;
+import kz.app.jsonapidemo.serializer.BookSerializer;
+import kz.app.jsonapidemo.serializer.IncludeResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,23 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
+
+    private final BookSerializer bookSerializer;
+    private final IncludeResolver includeResolver;
+
+    @Transactional
+    public JsonApiDocument<?> getBooks(Set<String> include) {
+        List<Book> books = findAll();
+        List<ResourceObject> includes = includeResolver.resolve(books, include);
+        return new JsonApiDocument<>(bookSerializer.serializeAll(books), includes);
+    }
+
+    @Transactional
+    public JsonApiDocument<?> getBookById(Long id, Set<String> include) {
+        Book book = findById(id);
+        List<ResourceObject> includes = includeResolver.resolve(List.of(book), include);
+        return new JsonApiDocument<>(bookSerializer.serialize(book), includes);
+    }
 
     public List<Book> findAll() {
         return bookRepository.findAll();

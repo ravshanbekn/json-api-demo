@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -23,20 +24,20 @@ import java.util.List;
 public class BookController {
 
     private final BookSerializer bookSerializer;
-    private final BookService bookService;
     private final AuthorSerializer authorSerializer;
     private final GenreSerializer genreSerializer;
 
+    private final BookService bookService;
+
     @GetMapping
-    public JsonApiDocument<?> getBooks() {
-        List<Book> books = bookService.findAll();
-        return new JsonApiDocument<>(bookSerializer.serializeAll(books));
+    public JsonApiDocument<?> getBooks(@RequestParam(required = false) Set<String> include) {
+        return bookService.getBooks(include);
     }
 
     @GetMapping("/{id}")
-    public JsonApiDocument<?> getBookById(@PathVariable Long id) {
-        Book book = bookService.findById(id);
-        return new JsonApiDocument<>(bookSerializer.serialize(book));
+    public JsonApiDocument<?> getBookById(@PathVariable Long id,
+                                          @RequestParam(required = false) Set<String> include) {
+        return bookService.getBookById(id, include);
     }
 
     @PostMapping

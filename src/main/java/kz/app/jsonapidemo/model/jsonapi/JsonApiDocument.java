@@ -11,11 +11,17 @@ import java.util.Map;
 public class JsonApiDocument<T> {
 
     private T data;
+    private List<ResourceObject> included;
     private List<ErrorObject> errors;
     private Map<String, Object> meta;
 
     public JsonApiDocument(T data) {
+        this(data, null);
+    }
+
+    public JsonApiDocument(T data, List<ResourceObject> included) {
         this.data = data;
+        this.included = included;
     }
 
     public JsonApiDocument(List<ErrorObject> errors) {
