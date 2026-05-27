@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class GenreSerializer implements ResourceSerializer<Genre> {
@@ -20,6 +21,11 @@ public class GenreSerializer implements ResourceSerializer<Genre> {
 
     @Override
     public ResourceObject serialize(Genre genre) {
+        return serialize(genre, Map.of());
+    }
+
+    @Override
+    public ResourceObject serialize(Genre genre, Map<String, Set<String>> fieldsets) {
         ResourceObject resourceObject = new ResourceObject();
         resourceObject.setType(TYPE);
         resourceObject.setId(String.valueOf(genre.getId()));
@@ -27,6 +33,11 @@ public class GenreSerializer implements ResourceSerializer<Genre> {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("name", genre.getName());
         attributes.put("description", genre.getDescription());
+
+        Set<String> fields = fieldsets.getOrDefault("genres", null);
+        if (fields != null) {
+            attributes.keySet().retainAll(fields);
+        }
 
         resourceObject.setAttributes(attributes);
         return resourceObject;

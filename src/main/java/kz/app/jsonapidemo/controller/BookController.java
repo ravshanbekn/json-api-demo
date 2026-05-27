@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -30,14 +31,16 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public JsonApiDocument<?> getBooks(@RequestParam(required = false) Set<String> include) {
-        return bookService.getBooks(include);
+    public JsonApiDocument<?> getBooks(@RequestParam(required = false) Set<String> include,
+                                       @RequestParam(required = false) Map<String, String> fieldsets) {
+        return bookService.getBooks(include, fieldsets);
     }
 
     @GetMapping("/{id}")
     public JsonApiDocument<?> getBookById(@PathVariable Long id,
-                                          @RequestParam(required = false) Set<String> include) {
-        return bookService.getBookById(id, include);
+                                          @RequestParam(required = false) Set<String> include,
+                                          @RequestParam(required = false) Map<String, String> fieldsets) {
+        return bookService.getBookById(id, include, fieldsets);
     }
 
     @PostMapping

@@ -1,20 +1,14 @@
 package kz.app.jsonapidemo.controller;
 
 import kz.app.jsonapidemo.model.data.GenreData;
-import kz.app.jsonapidemo.model.entity.Book;
 import kz.app.jsonapidemo.model.entity.Genre;
 import kz.app.jsonapidemo.model.jsonapi.JsonApiDocument;
-import kz.app.jsonapidemo.model.jsonapi.ResourceIdentifier;
 import kz.app.jsonapidemo.model.jsonapi.ResourceObject;
-import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.GenreSerializer;
-import kz.app.jsonapidemo.service.BookService;
 import kz.app.jsonapidemo.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/genres")
@@ -23,14 +17,6 @@ public class GenreController {
 
     private final GenreSerializer genreSerializer;
     private final GenreService genreService;
-    private final BookSerializer bookSerializer;
-    private final BookService bookService;
-
-    @GetMapping
-    public JsonApiDocument<?> getGenres() {
-        List<Genre> genres = genreService.findAll();
-        return new JsonApiDocument<>(genreSerializer.serializeAll(genres));
-    }
 
     @GetMapping("/{id}")
     public JsonApiDocument<?> getGenreById(@PathVariable Long id) {
@@ -58,21 +44,5 @@ public class GenreController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGenre(@PathVariable Long id) {
         genreService.delete(id);
-    }
-
-    @GetMapping("/{id}/books")
-    public JsonApiDocument<?> getGenreBooks(@PathVariable Long id) {
-        genreService.findById(id);
-        List<Book> books = bookService.findByGenreId(id);
-        return new JsonApiDocument<>(bookSerializer.serializeAll(books));
-    }
-
-    @GetMapping("/{id}/relationships/books")
-    public JsonApiDocument<?> getBooksRelationship(@PathVariable Long id) {
-        genreService.findById(id);
-        List<ResourceIdentifier> identifiers = bookService.findByGenreId(id).stream()
-                .map(b -> new ResourceIdentifier(String.valueOf(b.getId()), BookSerializer.TYPE))
-                .toList();
-        return new JsonApiDocument<>(identifiers);
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.util.ObjectUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class BookSerializer implements ResourceSerializer<Book> {
@@ -27,39 +28,53 @@ public class BookSerializer implements ResourceSerializer<Book> {
         return TYPE;
     }
 
-    @Override
-    public ResourceObject serialize(Book book) {
+    public ResourceObject serialize(Book book, Map<String, Set<String>> fieldsets) {
         ResourceObject resourceObject = new ResourceObject();
         resourceObject.setType(TYPE);
         resourceObject.setId(String.valueOf(book.getId()));
 
+        Set<String> fields = fieldsets.getOrDefault("books", null);
+        Map<String, Object> attributes = getAttributes(book, fields);
+        return getResourceObject(book, resourceObject, attributes);
+    }
+
+    @Override
+    public ResourceObject serialize(Book book) {
+        return serialize(book, Map.of());
+    }
+
+    public Book toEntity(ResourceObject resource) {
+        Book book = new Book();
+        book.setTitle((String) resource.getAttributes().get("title"));
+        book.setSummary((String) resource.getAttributes().get("summary"));
+        book.setIsbn((String) resource.getAttributes().get("isbn"));
+        Object year = resource.getAttributes().get("publishedYear");
+        if (year != null) book.setPublishedYear((Integer) year);
+        return book;
+    }
+
+    public BookData toData(ResourceObject resource) {
+        BookData bookData = new BookData();
+        bookData.setTitle((String) resource.getAttributes().get("title"));
+        bookData.setSummary((String) resource.getAttributes().get("summary"));
+        bookData.setIsbn((String) resource.getAttributes().get("isbn"));
+        Object year = resource.getAttributes().get("publishedYear");
+        if (year != null) bookData.setPublishedYear((Integer) year);
+        return bookData;
+    }
+
+    private static Map<String, Object> getAttributes(Book book, Set<String> fields) {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("title", book.getTitle());
         attributes.put("summary", book.getSummary());
         attributes.put("publishedYear", book.getPublishedYear());
         attributes.put("isbn", book.getIsbn());
 
-        resourceObject.setAttributes(attributes);
-
-        Map<String, Object> relationships = new HashMap<>();
-        Author author = book.getAuthor();
-        if (author != null) {
-            RelationshipObject<ResourceIdentifier> authorRelationships = getAuthorIdentifiers(book, author);
-
-            relationships.put(AUTHOR_REL, authorRelationships);
+        if (!ObjectUtils.isEmpty(fields)) {
+            attributes.keySet().retainAll(fields);
         }
 
-        List<Genre> genres = book.getGenres();
-        if (!ObjectUtils.isEmpty(genres)) {
-            RelationshipObject<List<ResourceIdentifier>> genresRelationships = getGenreIdentifiers(book, genres);
-
-            relationships.put(GENRE_REL, genresRelationships);
-        }
-
-        if (!relationships.isEmpty()) {
-            resourceObject.setRelationships(relationships);
-        }
-        return resourceObject;
+        return attributes;
     }
 
     private static RelationshipObject<List<ResourceIdentifier>> getGenreIdentifiers(Book book, List<Genre> genres) {
@@ -91,23 +106,27 @@ public class BookSerializer implements ResourceSerializer<Book> {
         return authorRelationships;
     }
 
-    public Book toEntity(ResourceObject resource) {
-        Book book = new Book();
-        book.setTitle((String) resource.getAttributes().get("title"));
-        book.setSummary((String) resource.getAttributes().get("summary"));
-        book.setIsbn((String) resource.getAttributes().get("isbn"));
-        Object year = resource.getAttributes().get("publishedYear");
-        if (year != null) book.setPublishedYear((Integer) year);
-        return book;
-    }
+    private static ResourceObject getResourceObject(Book book, ResourceObject resourceObject, Map<String, Object> attributes) {
+        resourceObject.setAttributes(attributes);
 
-    public BookData toData(ResourceObject resource) {
-        BookData bookData = new BookData();
-        bookData.setTitle((String) resource.getAttributes().get("title"));
-        bookData.setSummary((String) resource.getAttributes().get("summary"));
-        bookData.setIsbn((String) resource.getAttributes().get("isbn"));
-        Object year = resource.getAttributes().get("publishedYear");
-        if (year != null) bookData.setPublishedYear((Integer) year);
-        return bookData;
+        Map<String, Object> relationships = new HashMap<>();
+        Author author = book.getAuthor();
+        if (author != null) {
+            RelationshipObject<ResourceIdentifier> authorRelationships = getAuthorIdentifiers(book, author);
+
+            relationships.put(AUTHOR_REL, authorRelationships);
+        }
+
+        List<Genre> genres = book.getGenres();
+        if (!ObjectUtils.isEmpty(genres)) {
+            RelationshipObject<List<ResourceIdentifier>> genresRelationships = getGenreIdentifiers(book, genres);
+
+            relationships.put(GENRE_REL, genresRelationships);
+        }
+
+        if (!relationships.isEmpty()) {
+            resourceObject.setRelationships(relationships);
+        }
+        return resourceObject;
     }
 }

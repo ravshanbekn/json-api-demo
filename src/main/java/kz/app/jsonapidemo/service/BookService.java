@@ -13,11 +13,13 @@ import kz.app.jsonapidemo.repository.BookRepository;
 import kz.app.jsonapidemo.repository.GenreRepository;
 import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.IncludeResolver;
+import kz.app.jsonapidemo.util.FieldsetParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,17 +35,19 @@ public class BookService {
     private final IncludeResolver includeResolver;
 
     @Transactional
-    public JsonApiDocument<?> getBooks(Set<String> include) {
+    public JsonApiDocument<?> getBooks(Set<String> include, Map<String, String> fieldsets) {
         List<Book> books = findAll();
-        List<ResourceObject> includes = includeResolver.resolve(books, include);
-        return new JsonApiDocument<>(bookSerializer.serializeAll(books), includes);
+        Map<String, Set<String>> parsedFieldsets = FieldsetParser.parse(fieldsets);
+        List<ResourceObject> includes = includeResolver.resolve(books, include, parsedFieldsets);
+        return new JsonApiDocument<>(bookSerializer.serializeAll(books, parsedFieldsets), includes);
     }
 
     @Transactional
-    public JsonApiDocument<?> getBookById(Long id, Set<String> include) {
+    public JsonApiDocument<?> getBookById(Long id, Set<String> include, Map<String, String> fieldsets) {
         Book book = findById(id);
-        List<ResourceObject> includes = includeResolver.resolve(List.of(book), include);
-        return new JsonApiDocument<>(bookSerializer.serialize(book), includes);
+        Map<String, Set<String>> parsedFieldsets = FieldsetParser.parse(fieldsets);
+        List<ResourceObject> includes = includeResolver.resolve(List.of(book), include, parsedFieldsets);
+        return new JsonApiDocument<>(bookSerializer.serialize(book, parsedFieldsets), includes);
     }
 
     public List<Book> findAll() {

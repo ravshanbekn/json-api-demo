@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class AuthorSerializer implements ResourceSerializer<Author> {
@@ -21,6 +22,11 @@ public class AuthorSerializer implements ResourceSerializer<Author> {
 
     @Override
     public ResourceObject serialize(Author author) {
+        return serialize(author, Map.of());
+    }
+
+    @Override
+    public ResourceObject serialize(Author author, Map<String, Set<String>> fieldsets) {
         ResourceObject resourceObject = new ResourceObject();
         resourceObject.setType(TYPE);
         resourceObject.setId(String.valueOf(author.getId()));
@@ -30,6 +36,11 @@ public class AuthorSerializer implements ResourceSerializer<Author> {
         attributes.put("lastName", author.getLastName());
         attributes.put("bio", author.getBio());
         attributes.put("birthDate", author.getBirthDate());
+
+        Set<String> fields = fieldsets.getOrDefault("authors", null);
+        if (fields != null) {
+            attributes.keySet().retainAll(fields);
+        }
 
         resourceObject.setAttributes(attributes);
         return resourceObject;

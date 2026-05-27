@@ -17,7 +17,8 @@ public class IncludeResolver {
     private final AuthorSerializer authorSerializer;
     private final GenreSerializer genreSerializer;
 
-    public List<ResourceObject> resolve(List<Book> books, Set<String> includes) {
+    public List<ResourceObject> resolve(List<Book> books, Set<String> includes,
+                                        Map<String, Set<String>> fieldsets) {
         if (ObjectUtils.isEmpty(includes)) {
             return null;
         }
@@ -28,7 +29,7 @@ public class IncludeResolver {
             for (Book book : books) {
                 Author author = book.getAuthor();
                 if (author != null) {
-                    result.put("authors:" + author.getId(), authorSerializer.serialize(author));
+                    result.put("authors:" + author.getId(), authorSerializer.serialize(author, fieldsets));
                 }
             }
         }
@@ -36,7 +37,7 @@ public class IncludeResolver {
         if (includes.contains("genres")) {
             for (Book book : books) {
                 for (Genre genre : book.getGenres()) {
-                    result.put("genres:" + genre.getId(), genreSerializer.serialize(genre));
+                    result.put("genres:" + genre.getId(), genreSerializer.serialize(genre, fieldsets));
                 }
             }
         }
