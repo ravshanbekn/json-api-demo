@@ -33,8 +33,10 @@ public class BookController {
 
     @GetMapping
     public JsonApiDocument<?> getBooks(@RequestParam(required = false) Set<String> include,
-                                       @RequestParam(required = false) Map<String, String> fieldsets) {
-        return bookService.getBooks(include, fieldsets);
+                                       @RequestParam(required = false) Map<String, String> params) {
+        Map<String, Set<String>> fieldsets = StringParser.parse(params);
+        Map<String, String> filters = StringParser.getFilters(params);
+        return bookService.getBooks(include, fieldsets, filters);
     }
 
     @GetMapping("/{id}")
@@ -42,7 +44,6 @@ public class BookController {
                                           @RequestParam(required = false) Set<String> include,
                                           @RequestParam(required = false) Map<String, String> params) {
         Map<String, Set<String>> fieldSets = StringParser.parse(params);
-        Map<String, String> filters = StringParser.getFilters(params);
         return bookService.getBookById(id, include, fieldSets);
     }
 
