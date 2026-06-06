@@ -1,12 +1,19 @@
 package kz.app.jsonapidemo.model.jsonapi;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Map;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonApiDocument<T> {
 
@@ -14,6 +21,9 @@ public class JsonApiDocument<T> {
     private List<ResourceObject> included;
     private List<ErrorObject> errors;
     private Map<String, Object> meta;
+
+    @JsonCreator
+    public JsonApiDocument() {}
 
     public JsonApiDocument(T data) {
         this(data, null);
