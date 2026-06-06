@@ -13,7 +13,7 @@ import kz.app.jsonapidemo.repository.BookRepository;
 import kz.app.jsonapidemo.repository.GenreRepository;
 import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.IncludeResolver;
-import kz.app.jsonapidemo.util.FieldsetParser;
+import kz.app.jsonapidemo.util.StringParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,17 +37,16 @@ public class BookService {
     @Transactional
     public JsonApiDocument<?> getBooks(Set<String> include, Map<String, String> fieldsets) {
         List<Book> books = findAll();
-        Map<String, Set<String>> parsedFieldsets = FieldsetParser.parse(fieldsets);
+        Map<String, Set<String>> parsedFieldsets = StringParser.parse(fieldsets);
         List<ResourceObject> includes = includeResolver.resolve(books, include, parsedFieldsets);
         return new JsonApiDocument<>(bookSerializer.serializeAll(books, parsedFieldsets), includes);
     }
 
     @Transactional
-    public JsonApiDocument<?> getBookById(Long id, Set<String> include, Map<String, String> fieldsets) {
+    public JsonApiDocument<?> getBookById(Long id, Set<String> include, Map<String, Set<String>> fieldsets) {
         Book book = findById(id);
-        Map<String, Set<String>> parsedFieldsets = FieldsetParser.parse(fieldsets);
-        List<ResourceObject> includes = includeResolver.resolve(List.of(book), include, parsedFieldsets);
-        return new JsonApiDocument<>(bookSerializer.serialize(book, parsedFieldsets), includes);
+        List<ResourceObject> includes = includeResolver.resolve(List.of(book), include, fieldsets);
+        return new JsonApiDocument<>(bookSerializer.serialize(book, fieldsets), includes);
     }
 
     public List<Book> findAll() {

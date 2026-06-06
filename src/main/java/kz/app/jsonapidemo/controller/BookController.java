@@ -11,6 +11,7 @@ import kz.app.jsonapidemo.serializer.AuthorSerializer;
 import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.GenreSerializer;
 import kz.app.jsonapidemo.service.BookService;
+import kz.app.jsonapidemo.util.StringParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +40,10 @@ public class BookController {
     @GetMapping("/{id}")
     public JsonApiDocument<?> getBookById(@PathVariable Long id,
                                           @RequestParam(required = false) Set<String> include,
-                                          @RequestParam(required = false) Map<String, String> fieldsets) {
-        return bookService.getBookById(id, include, fieldsets);
+                                          @RequestParam(required = false) Map<String, String> params) {
+        Map<String, Set<String>> fieldSets = StringParser.parse(params);
+        Map<String, String> filters = StringParser.getFilters(params);
+        return bookService.getBookById(id, include, fieldSets);
     }
 
     @PostMapping
