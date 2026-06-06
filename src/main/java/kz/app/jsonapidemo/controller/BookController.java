@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +38,8 @@ public class BookController {
                                        @RequestParam(required = false) Map<String, String> params) {
         Map<String, Set<String>> fieldsets = StringParser.parse(params);
         Map<String, String> filters = StringParser.getFilters(params);
-        return bookService.getBooks(include, fieldsets, filters);
+        Sort sort = StringParser.getSort(params);
+        return bookService.getBooks(include, fieldsets, filters, sort);
     }
 
     @GetMapping("/{id}")

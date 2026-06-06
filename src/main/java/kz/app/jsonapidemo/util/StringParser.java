@@ -1,10 +1,29 @@
 package kz.app.jsonapidemo.util;
 
+import org.springframework.data.domain.Sort;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StringParser {
+
+    public static Sort getSort(Map<String, String> params) {
+        if (params == null || !params.containsKey("sort")) {
+            return Sort.unsorted();
+        }
+        List<Sort.Order> orders = new ArrayList<>();
+        for (String field : params.get("sort").split(",")) {
+            if (field.startsWith("-")) {
+                orders.add(Sort.Order.desc(field.substring(1)));
+            } else {
+                orders.add(Sort.Order.asc(field));
+            }
+        }
+        return Sort.by(orders);
+    }
 
     public static Map<String, String> getFilters(Map<String, String> params) {
         if (params == null || params.isEmpty()) {

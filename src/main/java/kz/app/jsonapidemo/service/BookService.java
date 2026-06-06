@@ -15,6 +15,7 @@ import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.IncludeResolver;
 import kz.app.jsonapidemo.specification.BookSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +37,8 @@ public class BookService {
 
     @Transactional
     public JsonApiDocument<?> getBooks(Set<String> include, Map<String, Set<String>> fieldsets,
-                                       Map<String, String> filters) {
-        List<Book> books = bookRepository.findAll(new BookSpecification(filters));
+                                       Map<String, String> filters, Sort sort) {
+        List<Book> books = bookRepository.findAll(new BookSpecification(filters), sort);
         List<ResourceObject> includes = includeResolver.resolve(books, include, fieldsets);
         return new JsonApiDocument<>(bookSerializer.serializeAll(books, fieldsets), includes);
     }
