@@ -15,7 +15,8 @@ import kz.app.jsonapidemo.serializer.BookSerializer;
 import kz.app.jsonapidemo.serializer.IncludeResolver;
 import kz.app.jsonapidemo.specification.BookSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +38,19 @@ public class BookService {
 
     @Transactional
     public JsonApiDocument<?> getBooks(Set<String> include, Map<String, Set<String>> fieldsets,
-                                       Map<String, String> filters, Sort sort) {
-        List<Book> books = bookRepository.findAll(new BookSpecification(filters), sort);
+                                       Map<String, String> filters, Pageable pageable) {
+        Page<Book> page = bookRepository.findAll(new BookSpecification(filters), pageable);
+        List<Book> books = page.getContent();
         List<ResourceObject> includes = includeResolver.resolve(books, include, fieldsets);
-        return new JsonApiDocument<>(bookSerializer.serializeAll(books, fieldsets), includes);
+        JsonApiDocument<List<ResourceObject>> document =
+                new JsonApiDocument<>(bookSerializer.serializeAll(books, fieldsets), includes);
+        document.setMeta(Map.of(
+                "totalElements", page.getTotalElements(),
+                "totalPages", page.getTotalPages(),
+                "number", page.getNumber(),
+                "size", page.getSize()
+        ));
+        return document;
     }
 
     @Transactional
@@ -116,10 +126,6 @@ public class BookService {
     public Book findByIdWithGenres(Long id) {
         return bookRepository.findWithGenresById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Book not found with id: " + id));
-    }
-
-    public List<Book> findByGenreId(Long genreId) {
-        return bookRepository.findAllByGenres_Id(genreId);
     }
 
     @Transactional

@@ -1,5 +1,7 @@
 package kz.app.jsonapidemo.util;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
@@ -23,6 +25,16 @@ public class StringParser {
             }
         }
         return Sort.by(orders);
+    }
+
+    public static Pageable getPageable(Map<String, String> params) {
+        int number = 0;
+        int size = 20;
+        if (params != null) {
+            if (params.containsKey("page[number]")) number = Integer.parseInt(params.get("page[number]"));
+            if (params.containsKey("page[size]")) size = Integer.parseInt(params.get("page[size]"));
+        }
+        return PageRequest.of(number, size, getSort(params));
     }
 
     public static Map<String, String> getFilters(Map<String, String> params) {
